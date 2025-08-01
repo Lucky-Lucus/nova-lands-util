@@ -1,6 +1,7 @@
-DIV_LEN = 75
+# MACROS:
+DIV_LEN = 75        # length of the divider
 
-
+# Convert seconds to minutes
 def sec_to_min(s):
     s = s
     m = 0
@@ -17,7 +18,7 @@ def sec_to_min(s):
         output = f"{s}s"
     return output
 
-
+# Convert workbench identifier to string
 def decode_bench(c):
     if c == "A":
         return "Assembler"
@@ -32,21 +33,21 @@ def decode_bench(c):
     else:
         return "Unknown"
 
-
+# Print thick divider
 def thick_div():
     div = ""
     for _ in range(DIV_LEN):
         div += "="
     print(div)
 
-
+# Print thin divider
 def thin_div():
     div = ""
     for _ in range(DIV_LEN):
         div += "-"
     print(div)
 
-
+# Print help
 def help():
     thin_div()
     print("List of helpful commands:")

@@ -1,52 +1,77 @@
 from helpers import *
 
-
+# Class to hold a crafting tree
 class Item:
     def __init__(self, name):
-        self.name = name
-        self.ingredients = []
+        self.name = name        # name of an item
+        self.bench = None       # crafting bench
+        self.ttm = None         # time required to craft an item (time-to-make)
+        self.ttm_a = None       # time required to craft an item in an advanced version of a bench
+        self.alt = None         # whether the advanced recipe uses 2x (F) or 3x (T) the number of components
+        self.ingredients = []   # list of crafting components
     
+    # Add attrbutes of an item related to the crafting
+    def add_attributes(self, bench, ttm, tmod, alt):
+        self.bench = bench
+        self.ttm = ttm
+        self.ttm_a = tmod * ttm
+        self.alt = alt
+    
+    # Add component to a list of components/ingredients and its amount (tuple: (item, amount))
     def add_ingredient(self, ingredient):
         self.ingredients.append(ingredient)
 
+    # Get all components of an item (recursively, until leaves (basic ingredients) are reached)
     def get_all(self):
         sub_ingr = []
         for ingr in self.ingredients:
             sub_ingr += ingr[0].get_all()
         return sub_ingr + self.ingredients
 
+    # Print formatted important information about an item
     def print_self(self):
         output = self.name + "\n"
         for ingr in self.ingredients:
             output += "   " + str(ingr[1]) + "x " + ingr[0].print_self()
         return output
 
-
+# Build a tree of components (nodes: items, leaves: basic ingredients)
 def build_tree(item_list, name):
     item = Item(name)
     if item_list.get(name) is not None:
+        # fill out crafting attributes if the item is not a basic ingredient
+        bench = item_list.get(name)["bench"]
+        ttm = item_list.get(name)["ttm"]
+        tmod = item_list.get(name)["tmod"]
+        alt = item_list.get(name)["alt"]
+        # add components/ingredients
         components = item_list.get(name)["recipe"]
         amounts = item_list.get(name)["amounts"]
+        item.add_attributes(bench, ttm, tmod, alt)
         for i in range(len(components)):
             item.add_ingredient((build_tree(item_list, components[i]), amounts[i]))
     return item
 
-
+# Print an item overview
 def print_item(item_list, name):
     thin_div()
     item = item_list.get(name)
+    # chech for item validity
     if item is None:
         print("Selected item does not exist, is a basic component or wrong command was entered (type \"help\" for a list of commands)")
         thin_div()
         return
+    # get important attributes
     time = item["ttm"]
     alt_time = item["ttm"] * item["tmod"]
     alt_amount = 3 if item["alt"] else 2
     bench = decode_bench(item["bench"])
 
+    # formatted "stat line" of an item
     title = f"[{1} / {alt_amount}] {name.upper()}"
     assembly_detail = f"in {bench} [ {sec_to_min(time)} / {sec_to_min(alt_time)}]"
 
+    # formatted list of components/ingredients
     print(f"{title:<35} {assembly_detail:>38}")
     print(f"Ingeredients:")
     ingredients = get_ingredients(item)
@@ -55,34 +80,40 @@ def print_item(item_list, name):
         print(f" - {ingr} x [{num_ingr} / {num_ingr * 2}]")
     thin_div()
 
-
+# Count the number of all components/ingredients required for an item
 def count_ingredients(item_list, name, basic_only=False):
     thin_div()
     item = item_list.get(name)
+    # check for item validity
     if item is None:
         print("Selected item does not exist or is a basic component")
         thin_div()
         return
+    # create component tree and then component list
     recipe_tree = build_tree(item_list, name)
     ingr_list = recipe_tree.get_all()
     ingr_names = []
     ingr_count = []
+    # go through the list and get all components/ingredients and their amounts
     for ingr in ingr_list:
         if ingr[0].name not in ingr_names:
             ingr_names.append(ingr[0].name)
             ingr_count.append(ingr[1])
         else:
             ingr_count[ingr_names.index(ingr[0].name)] += ingr[1]
+    # include only basic ingredients
     if basic_only:
         for name in ingr_names:
             if item_list.get(name) is None:
                 print(f"{ingr_count[ingr_names.index(name)]:>2} x  {name}")
+    # include all components/ingredients
     else:
         for i in range(len(ingr_names)):
             print(f"{ingr_count[i]:>2} x  {ingr_names[i]}")
     thin_div()
 
 
+# Get immediate components of an item
 def get_ingredients(item):
     ingredients = []
     if item is None:
@@ -92,3 +123,19 @@ def get_ingredients(item):
         num_ingr = item["amounts"][i]
         ingredients.append((ingr, num_ingr))
     return ingredients
+
+# Count number of machines required to craft an item (does not take into account crafting time)
+def get_machines(item_list, name):
+    thin_div()
+    item = item_list.get(name)
+    # check for item validity
+    if item is None:
+        print("Selected item does not exist or is a basic component")
+        thin_div()
+        return
+    # create component tree
+    recipe_tree = build_tree(item_list, name)
+    # create list or otherwise count number of benches required
+    # TODO: implement it
+    pass
+
