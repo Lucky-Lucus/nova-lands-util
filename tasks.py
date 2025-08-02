@@ -1,3 +1,5 @@
+from math import ceil
+
 from helpers import *
 
 # Class to hold a crafting tree
@@ -21,8 +23,10 @@ class Item:
     def add_ingredient(self, ingredient):
         self.ingredients.append(ingredient)
 
-    # Get all components of an item (recursively, until leaves (basic ingredients) are reached)
+    # Get all components of an item (recursively, until leaves (basic ingredients) are reached) (returns list of tuples (name, amount needed))
     def get_all(self):
+        if self.is_basic():
+            return []
         sub_ingr = []
         for ingr in self.ingredients:
             sub_ingr += ingr[0].get_all()
@@ -34,6 +38,10 @@ class Item:
         for ingr in self.ingredients:
             output += "   " + str(ingr[1]) + "x " + ingr[0].print_self()
         return output
+    
+    # Check if the ingredient is a basic one
+    def is_basic(self):
+        return not self.ingredients
 
 # Build a tree of components (nodes: items, leaves: basic ingredients)
 def build_tree(item_list, name):
@@ -125,7 +133,7 @@ def get_ingredients(item):
     return ingredients
 
 # Count number of machines required to craft an item (does not take into account crafting time)
-def get_machines(item_list, name):
+def get_benches(item_list, name, use_advanced=False):
     thin_div()
     item = item_list.get(name)
     # check for item validity
@@ -135,7 +143,34 @@ def get_machines(item_list, name):
         return
     # create component tree
     recipe_tree = build_tree(item_list, name)
-    # create list or otherwise count number of benches required
-    # TODO: implement it
-    pass
+    # create list of all ingredients
+    ingr_list = recipe_tree.get_all()
+    # create dictionary of all benches needed and their amounts
+    benches = {}
+    for ingr in ingr_list:
+        ingredient = ingr[0]
+        # skip basic ingredients
+        if ingredient.is_basic():
+            continue
+        amount = ingr[1]
+        bench = ingredient.bench
+        # if considering advanced benches
+        if use_advanced:
+            a_mod = 3 if ingredient.alt else 2
+            amount = ceil(amount / a_mod)
+        # count number of benches needed
+        if bench in benches:
+            benches[bench] += amount
+        else:
+            benches[bench] = amount
+    # formatted print of the benches
+    for b in benches:
+        print(f"{benches[b]:>2} x  {"Advanced" if use_advanced else ""} {decode_bench(b)}")
+    thin_div()
 
+# Count minimal number of machines required to craft an item
+def get_minimal_benches(item_list, name, use_advanced=False):
+    thin_div()
+    print("Sorry, this functionality is not yet implemented")
+    thin_div()
+    pass

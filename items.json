@@ -27,5 +27,7 @@
     "copper ingot":              {"recipe": ["copper ore", "charcoal"], "amounts": [2, 1], "ttm": 48, "bench":"F", "alt": true, "tmod": 2},
 
     "super lubricant":           {"recipe": ["glass bottle", "cornilia flower", "juice ball"], "amounts": [1, 2, 8], "ttm": 216, "bench":"R", "alt": true, "tmod": 1},
-    "lubricant oil":             {"recipe": ["glass bottle", "cornilia flower"], "amounts": [1, 2], "ttm": 72, "bench":"R", "alt": true, "tmod": 1}
+    "lubricant oil":             {"recipe": ["glass bottle", "cornilia flower"], "amounts": [1, 2], "ttm": 72, "bench":"R", "alt": true, "tmod": 1},
+
+    "debug item":                {"recipe": ["charcoal", "iron ingot"], "amounts": [4, 1], "ttm": 72, "bench":"R", "alt": false, "tmod": 1}
 }

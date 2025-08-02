@@ -19,12 +19,35 @@ def main():
         # print help
         elif user == "help":
             help()
-        # count and list number of all ingredients
+        # list ingredients commmands
         elif words[0] == "comp":
-            count_ingredients(item_list, " ".join(words[1:]))
-        # count and list only basic ingredients
-        elif words[0] == "basic":
-            count_ingredients(item_list, " ".join(words[1:]), basic_only=True)
+            # basic ingredients
+            if words[1] == "-b":
+                count_ingredients(item_list, " ".join(words[2:]), basic_only=True)
+            # all ingredients
+            else:
+                count_ingredients(item_list, " ".join(words[1:]))
+        # list benches commands
+        elif words[0] == "bench":
+            # consider flags
+            flags = 0
+            use_adv = False
+            minimal = False
+            if "-a" in words:
+                use_adv = True
+                flags += 1
+            if "-m" in words:
+                minimal = True
+                flags += 1
+            # call correct command
+            if use_adv and minimal:
+                get_minimal_benches(item_list, " ".join(words[3:]), use_advanced=True)
+            elif use_adv and not minimal:
+                get_benches(item_list, " ".join(words[2:]), use_advanced=True)
+            elif minimal:
+                get_minimal_benches(item_list, " ".join(words[2:]))
+            else:
+                get_benches(item_list, " ".join(words[1:]))
         # print general overview of an item
         else:
             print_item(item_list, user)
