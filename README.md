@@ -27,4 +27,6 @@ Ready to run application, just download the following [.zip](./utility.zip) file
 
 Clone this reposiory or download the [source code](./source.zip). In the root folder of the source code execute the following:
 
-> python main.py
+```
+python main.py
+```
