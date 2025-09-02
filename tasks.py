@@ -9,7 +9,7 @@ class Item:
         self.bench = None       # crafting bench
         self.ttm = None         # time required to craft an item (time-to-make)
         self.ttm_a = None       # time required to craft an item in an advanced version of a bench
-        self.alt = None         # whether the advanced recipe uses 2x (F) or 3x (T) the number of components
+        self.alt = False         # whether the advanced recipe uses 2x (F) or 3x (T) the number of components
         self.ingredients = []   # list of crafting components
     
     # Add attrbutes of an item related to the crafting
@@ -165,7 +165,7 @@ def get_benches(item_list, name, use_advanced=False):
             benches[bench] = amount
     # formatted print of the benches
     for b in benches:
-        print(f"{benches[b]:>2} x  {"Advanced" if use_advanced else ""} {decode_bench(b)}")
+        print(f"{benches[b]:>2} x  {"Advanced " if use_advanced and b != 'B' else ""}{decode_bench(b)}")
     thin_div()
 
 # Count minimal number of machines required to craft an item
