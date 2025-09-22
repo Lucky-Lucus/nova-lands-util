@@ -1,6 +1,8 @@
-from math import ceil
+from math import ceil, inf, isinf
 
 from helpers import *
+
+USING_ADVANCED = False
 
 # Class to hold a crafting tree
 class Item:
@@ -73,7 +75,7 @@ def print_item(item_list, name):
     time = item["ttm"]
     alt_time = item["ttm"] * item["tmod"]
     alt_amount = 3 if item["alt"] else 2
-    bench = decode_bench(item["bench"])
+    bench = parse_bench(item["bench"])
 
     # formatted "stat line" of an item
     title = f"[{1} / {alt_amount}] {name.upper()}"
@@ -134,6 +136,7 @@ def get_ingredients(item):
 
 # Count number of machines required to craft an item (does not take into account crafting time)
 def get_benches(item_list, name, use_advanced=False):
+    USING_ADVANCED = use_advanced
     thin_div()
     item = item_list.get(name)
     # check for item validity
@@ -146,7 +149,7 @@ def get_benches(item_list, name, use_advanced=False):
     # create list of all ingredients
     ingr_list = recipe_tree.get_all()
     # create dictionary of all benches needed and their amounts
-    benches = {}
+    benches = {recipe_tree.bench: 1}
     for ingr in ingr_list:
         ingredient = ingr[0]
         # skip basic ingredients
@@ -155,7 +158,7 @@ def get_benches(item_list, name, use_advanced=False):
         amount = ingr[1]
         bench = ingredient.bench
         # if considering advanced benches
-        if use_advanced:
+        if USING_ADVANCED:
             a_mod = 3 if ingredient.alt else 2
             amount = ceil(amount / a_mod)
         # count number of benches needed
@@ -164,13 +167,62 @@ def get_benches(item_list, name, use_advanced=False):
         else:
             benches[bench] = amount
     # formatted print of the benches
+    benches = dict(sorted(benches.items()))
     for b in benches:
-        print(f"{benches[b]:>2} x  {"Advanced " if use_advanced and b != 'B' else ""}{decode_bench(b)}")
+        print(f"{benches[b]:>2} x  {"Advanced " if USING_ADVANCED and b != 'B' else ""}{parse_bench(b)}")
     thin_div()
+    USING_ADVANCED = False
 
-# Count minimal number of machines required to craft an item
+# Count minimal number of machines required to craft an item (changing recipes required) (suboptimal)
 def get_minimal_benches(item_list, name, use_advanced=False):
+    USING_ADVANCED = use_advanced
     thin_div()
-    print("Sorry, this functionality is not yet implemented")
+    print("Sorry, this functionality is not yet tested. Enjoy anyway...")
+    item = item_list.get(name)
+    # check for item validity
+    if item is None:
+        print("Selected item does not exist or is a basic component")
+        thin_div()
+        return
+    # create component tree
+    recipe_tree = build_tree(item_list, name)
+    # count minimal number of benches needed (BFS of item tree)
+    benches = {}
+    _process_item((recipe_tree, 1), benches, 0)
+    # print final findings
+    benches = dict(sorted(benches.items()))
+    for b in benches.keys():
+        print(f"{len(benches[b]):>2} x {"Advanced " if USING_ADVANCED and b != 'B' else ""}{parse_bench(b)}")
     thin_div()
+    USING_ADVANCED = False
     pass
+
+# Process next node
+def _process_item(node, bench_dict, time_to_root=0):
+    item = node[0]
+    # if item is a basic ingredient then skip (reached a leaf)
+    if item.is_basic():
+        return
+    amount = node[1]
+    t_to_make = amount * (item.ttm_a if USING_ADVANCED else item.ttm)
+    # breadth first search
+    for child in item.ingredients:
+        _process_item(child, bench_dict, time_to_root + t_to_make)
+    # array of working times for given type of bench (if it exists, if not, append it with the time)
+    try:
+        bench_times = bench_dict[item.bench]
+    except KeyError:
+        bench_dict[item.bench] = [time_to_root + t_to_make]
+        return
+    # find if any of the machines will be available at the moment of need
+    t_poss_bench = inf
+    for t in bench_times:
+        # find the biggest one (maximise working time)
+        if t <= time_to_root + t_to_make:
+            if t_poss_bench < t:
+                t_poss_bench = t
+    # if no available bench is found, add new time to availability
+    if isinf(t_poss_bench):
+        bench_times.append(time_to_root + t_to_make)
+    else:
+        bench_times = list(map(lambda x: (time_to_root + t_to_make) if x == t_poss_bench else (x), bench_times))

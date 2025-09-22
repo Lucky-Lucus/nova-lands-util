@@ -19,7 +19,7 @@ def sec_to_min(s):
     return output
 
 # Convert workbench identifier to string
-def decode_bench(c):
+def parse_bench(c):
     if c == "A":
         return "Assembler"
     elif c == "R":

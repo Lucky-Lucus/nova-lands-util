@@ -19,7 +19,7 @@ Ready to run application, just download the following [.zip](./utility.zip) file
 
 (The compiled version was built for Windows 11 and probably will not function with other OS, though you are welcome to try)
 
-#### 2. Using local version of Python
+#### 2. Use local version of Python
 
 #### Requirements:
 
