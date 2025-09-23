@@ -173,11 +173,10 @@ def get_benches(item_list, name, use_advanced=False):
     thin_div()
     USING_ADVANCED = False
 
-# Count minimal number of machines required to craft an item (changing recipes required) (suboptimal)
+# Count minimal number of machines required to craft an item
 def get_minimal_benches(item_list, name, use_advanced=False):
     USING_ADVANCED = use_advanced
     thin_div()
-    print("Sorry, this functionality is not yet tested. Enjoy anyway...")
     item = item_list.get(name)
     # check for item validity
     if item is None:
@@ -192,7 +191,8 @@ def get_minimal_benches(item_list, name, use_advanced=False):
     # print final findings
     benches = dict(sorted(benches.items()))
     for b in benches.keys():
-        print(f"{len(benches[b]):>2} x {"Advanced " if USING_ADVANCED and b != 'B' else ""}{parse_bench(b)}")
+        for i in benches[b].keys():
+            print(f"{len(benches[b][i]):>2} x {"Advanced " if USING_ADVANCED and b != 'B' else ""}{parse_bench(b):<12} crafting  {i}")
     thin_div()
     USING_ADVANCED = False
     pass
@@ -208,20 +208,25 @@ def _process_item(node, bench_dict, time_to_root=0):
     # breadth first search
     for child in item.ingredients:
         _process_item(child, bench_dict, time_to_root + t_to_make)
-    # array of working times for given type of bench (if it exists, if not, append it with the time)
+    # array of working times for given type of bench (if it does not exist, append it with the time)
     try:
-        bench_times = bench_dict[item.bench]
+        benches = bench_dict[item.bench]
     except KeyError:
-        bench_dict[item.bench] = [time_to_root + t_to_make]
+        bench_dict[item.bench] = {item.name: [time_to_root + t_to_make]}
         return
-    # find if any of the machines will be available at the moment of need
+    # find if any of the machines will be available at the moment of need with correct recipe (otherwise add machine)
+    try:
+        bench_times = benches[item.name]
+    except KeyError:
+        benches[item.name] = [time_to_root + t_to_make]
+        return
     t_poss_bench = inf
     for t in bench_times:
         # find the biggest one (maximise working time)
         if t <= time_to_root + t_to_make:
             if t_poss_bench < t:
                 t_poss_bench = t
-    # if no available bench is found, add new time to availability
+    # if no available bench is found, add new one
     if isinf(t_poss_bench):
         bench_times.append(time_to_root + t_to_make)
     else:

@@ -25,7 +25,7 @@ def parse_bench(c):
     elif c == "R":
         return "Refinery"
     elif c == "EF":
-        return "Electric Furnace"
+        return "El. Furnace"
     elif c == "F":
         return "Furnace"
     elif c == "B":
