@@ -169,7 +169,11 @@ def get_benches(item_list, name, use_advanced=False):
     # formatted print of the benches
     benches = dict(sorted(benches.items()))
     for b in benches:
-        print(f"{benches[b]:>2} x  {"Advanced " if USING_ADVANCED and b != 'B' else ""}{parse_bench(b)}")
+        bench_name = ("Advanced " if USING_ADVANCED and b != 'B' else "") + parse_bench(b)
+        if b == 'B' and USING_ADVANCED:
+            bench_name = bench_name + "         "
+        print(f"{benches[b]:>2} x  {bench_name}")
+        # print(f"{benches[b]:>2} x  {"Advanced " if USING_ADVANCED and b != 'B' else ""}{parse_bench(b)}")
     thin_div()
     USING_ADVANCED = False
 
@@ -192,7 +196,10 @@ def get_minimal_benches(item_list, name, use_advanced=False):
     benches = dict(sorted(benches.items()))
     for b in benches.keys():
         for i in benches[b].keys():
-            print(f"{len(benches[b][i]):>2} x {"Advanced " if USING_ADVANCED and b != 'B' else ""}{parse_bench(b):<12} crafting  {i}")
+            bench_name = ("Advanced " if USING_ADVANCED and b != 'B' else "") + parse_bench(b)
+            if b == 'B' and USING_ADVANCED:
+                bench_name = bench_name + "         "
+            print(f"{len(benches[b][i]):>2} x  {bench_name:<21} crafting  {i}")
     thin_div()
     USING_ADVANCED = False
     pass
