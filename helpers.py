@@ -1,5 +1,5 @@
 # MACROS:
-DIV_LEN = 75        # length of the divider
+DIV_LEN = 100        # length of the divider
 
 # Convert seconds to minutes
 def sec_to_min(s):

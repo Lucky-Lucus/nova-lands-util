@@ -10,7 +10,7 @@ def main():
     thick_div()
     # main program loop (user input and corresponding behaviour)
     while True:
-        print("> Select which item you want details for (or \"exit\" to end): ", end="")
+        print("> Select which item you want details for (or \"exit\" to end, \"help\" for commands): ", end="")
         user = input()
         words = user.split()
         # quit program
